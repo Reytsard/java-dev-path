@@ -1,0 +1,6 @@
+docker run --name task-manager-db ^
+  -e POSTGRES_DB=taskmanager ^
+  -e POSTGRES_USER=admin ^
+  -e POSTGRES_PASSWORD=admin123 ^
+  -p 5432:5432 ^
+  -d postgres

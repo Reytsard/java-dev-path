@@ -1,0 +1,33 @@
+### GET all books
+GET http://localhost:8080/books
+Content-Type: application/json
+
+### Save book
+POST http://localhost:8080/books/add
+Content-Type: application/json
+
+{
+  "title": "Dirty Code",
+  "author": "Arnold Ashton",
+  "pages": 200
+}
+
+### Get book by id !!replace id after /books
+GET http://localhost:8080/books/acde6295-27b5-44e0-a5de-064cf1162a40
+Content-Type: application/json
+
+### Delete book by id!!replace id after /books
+DELETE http://localhost:8080/books/2e338925-9ad5-426c-aeb3-ff9fd8df76da
+Content-Type: application/json
+
+### Update Book
+PATCH http://localhost:8080/books/update/2f6a22b8-11a5-4911-a5f0-7f9afa444a90
+Content-Type: application/json
+
+{
+  "author": "Robert Martin & Arnold Ashton"
+}
+
+### Get book by author
+GET http://localhost:8080/books/search?author=Arnold
+Content-Type: application/json
