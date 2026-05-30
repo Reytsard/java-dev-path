@@ -1,0 +1,22 @@
+### Register
+POST http://localhost:8080/auth/register
+Content-Type: application/json
+
+{
+  "username": "john",
+  "email": "john@email.com",
+  "password": "password123"
+}
+
+### Login
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "email": "john@email.com",
+  "password": "password123"
+}
+
+### Use the token (copy from login response)
+GET http://localhost:8080/user/
+Authorization: Bearer eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJqb2huQGVtYWlsLmNvbSIsImlhdCI6MTc3OTQ2OTE2MCwiZXhwIjoxNzc5NTU1NTYwfQ.nB3Z99lmPY9MFjG18-W8Z64qF-TgCSbC6TsW7biLtIAAzCY-YyxdqAogmr1XWXJG

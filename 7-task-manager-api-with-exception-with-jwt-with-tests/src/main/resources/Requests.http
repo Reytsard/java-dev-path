@@ -1,0 +1,67 @@
+###Get all users
+GET http://localhost:8080/user/
+Content-Type: application/json
+
+###Add User
+POST http://localhost:8080/user/add
+Content-Type: application/json
+
+{
+  "username": "Ronald",
+  "password": "123",
+  "email": "r@gmail.com"
+}
+
+### Update User
+PATCH http://localhost:8080/user/update
+Content-Type: application/json
+
+{
+  "id":"04e877f6-78c9-4087-b822-11366dd9e082",
+  "username": "New Ronald",
+  "email": "r2@gmail.com"
+}
+
+### Delete User
+@id = 04e877f6-78c9-4087-b822-11366dd9e082
+DELETE http://localhost:8080/user/delete/{{id}}
+Content-Type: application/json
+
+###======================================================
+
+### GET request to example server
+GET http://localhost:8080/tasks/
+Content-Type: application/json
+
+### GET Tasks by ID
+@USERID = b1cd3233-c2f1-4e04-a43b-50bf58667ebf
+GET http://localhost:8080/tasks/{{USERID}}
+
+### ADD TASK
+@userId = b1cd3233-c2f1-4e04-a43b-50bf58667ebf
+POST http://localhost:8080/tasks/{{userId}}/add
+Content-Type: application/json
+
+{
+  "title": "Create Program in java 2",
+  "description": "Read Java then create java application",
+  "priority": "HIGH",
+  "status": "PENDING"
+}
+
+### DELETE TASK
+@deleteId = cbe25b1a-e590-4347-a14e-aa9e5d83d624
+DELETE http://localhost:8080/tasks/remove/{{deleteId}}
+Content-Type: application/json
+
+#EXCEPTION HANDLING
+
+### GET NON EXISTING USER
+@nonExistingId=  1dceca2b-5528-423b-9028-84214dba43e9
+GET http://localhost:8080/user/{{nonExistingId}}
+Content-Type: application/json
+
+### GET NON EXISTING TASK
+@nonExistingTaskId=  1dceca2b-5528-423b-9028-84214dba43e9
+GET http://localhost:8080/tasks/id/{{nonExistingTaskId}}
+Content-Type: application/json
