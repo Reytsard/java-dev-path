@@ -8,9 +8,11 @@ import com.rrdm.task_manager_api.model.PRIORITY;
 import com.rrdm.task_manager_api.model.TASKSTATUS;
 import com.rrdm.task_manager_api.users.User;
 import com.rrdm.task_manager_api.users.UserRepository;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -20,6 +22,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 public class TaskServiceLogicTest {
 
     @Mock
@@ -124,6 +127,9 @@ public class TaskServiceLogicTest {
 
     @Test
     public void update_updatesOnlyNonNullFields(){
+
+        User user = buildUser();
+
         Task existing = buildTask();
         existing.setDescription("Old Desc");
         existing.setPriority(PRIORITY.LOW);
@@ -135,6 +141,7 @@ public class TaskServiceLogicTest {
         incoming.setStatus(null);
 
         when(taskRepository.findById(existing.getId())).thenReturn(Optional.of(existing));
+        when(userRepository.findById(userID)).thenReturn(Optional.of(user));
         when(taskService.save(userID,existing)).thenReturn(existing);
 
         Task result = taskService.update(incoming);
@@ -204,5 +211,82 @@ public class TaskServiceLogicTest {
                 .thenReturn(List.of());
 
         List<TaskResponse> result = taskService.search("login");
+
+        assertTrue(result.isEmpty());
+    }
+
+    /**
+     * delete
+     */
+
+    @Test
+    public void delete_returnTrue_whenTaskExists(){
+        Task task = buildTask();
+
+        when(taskRepository.findById(taskID)).thenReturn(Optional.of(task));
+
+        boolean result = taskService.delete(task.getId());
+        assertTrue(result);
+    }
+
+    @Test
+    public void delete_throwsTaskNotFoundException_whenTaskNotExists(){
+        when(taskRepository.findById(taskID)).thenReturn(Optional.empty());
+
+        assertThrows(TaskNotFoundException.class,() -> taskService.delete(taskID));
+        verify(taskRepository, never()).delete(any());
+    }
+
+    /**
+     * findAllByOwnerId
+     */
+
+    @Test
+    public void findAllByOwnerId_returnsMappedList_whenOwnerIdExists(){
+        User owner = buildUser();
+
+        Task task = buildTask();
+        task.setOwner(owner);
+
+        TaskResponse response = buildTaskResponse(task);
+
+        when(userRepository.findById(owner.getId())).thenReturn(Optional.of(owner));
+        when(taskRepository.findAllByOwnerId(owner.getId())).thenReturn(List.of(task));
+        when(taskMapper.toResponse(task)).thenReturn(response);
+
+        List<TaskResponse> result = taskService.findAllByOwnerId(owner.getId());
+
+        assertEquals(1, result.size());
+        assertEquals(task.getId(), result.getFirst().getId());
+    }
+
+    @Test
+    public void findAllByOwnerId_throwsUserNotFoundException_whenUserNotExists(){
+        when(userRepository.findById(userID)).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class,() -> taskService.findAllByOwnerId(userID));
+    }
+
+    /**
+     * findbyTaskId
+     */
+    @Test
+    public void findByTaskId_returnsTask_whenTaskExists(){
+        Task task = buildTask();
+        TaskResponse response = buildTaskResponse(task);
+
+        when(taskRepository.findById(task.getId())).thenReturn(Optional.of(task));
+        when(taskMapper.toResponse(task)).thenReturn(response);
+
+        TaskResponse result = taskService.findByTaskId(task.getId());
+
+        assertEquals(task.getId(), result.getId());
+    }
+
+    @Test
+    public void findByTaskId_throwsTaskNotExistException_whenTaskNotExists(){
+        when(taskRepository.findById(taskID)).thenReturn(Optional.empty());
+
+        assertThrows(TaskNotFoundException.class, () -> taskService.findByTaskId(taskID));
     }
 }

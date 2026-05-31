@@ -57,15 +57,17 @@ public class TaskService {
     }
 
     public boolean delete(UUID id) {
-        Optional<Task> taskToDelete = taskRepository.findById(id);
-        if(taskToDelete.isEmpty()) return false;
-        taskRepository.delete(taskToDelete.get());
+        Task taskToDelete = taskRepository
+                                .findById(id)
+                                .orElseThrow(() -> new TaskNotFoundException(id));
+        taskRepository.delete(taskToDelete);
         return true;
     }
 
     public List<TaskResponse> findAllByOwnerId(UUID id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
         return taskRepository
-                .findAllByOwnerId(id)
+                .findAllByOwnerId(user.getId())
                 .stream()
                 .map(taskMapper::toResponse)
                 .collect(Collectors.toList());
