@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("tasks")
+@RequestMapping("/tasks")
 public class TaskController {
     private final TaskService taskService;
 
@@ -17,7 +17,7 @@ public class TaskController {
         this.taskService = taskService;
     }
 
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<List<TaskResponse>> findAll() {
         return ResponseEntity.ok(taskService.findAll());
     }
@@ -29,7 +29,7 @@ public class TaskController {
 
     @PostMapping("/{id}/add")
     public ResponseEntity<Task> save(@PathVariable("id")UUID id,@Valid @RequestBody Task task){
-        return ResponseEntity.ok(taskService.save(id, task));
+        return ResponseEntity.status(201).body(taskService.save(id, task));
     }
 
     @PutMapping("/update")
@@ -39,7 +39,7 @@ public class TaskController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<TaskResponse>> search(@RequestParam String keyword) {
+    public ResponseEntity<List<TaskResponse>> search(@RequestParam("keyword") String keyword) {
         return ResponseEntity.ok(taskService.search(keyword));
     }
 
