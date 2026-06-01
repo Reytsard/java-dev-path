@@ -6,6 +6,7 @@ import com.rrdm.task_manager_api.model.TASKSTATUS;
 import com.rrdm.task_manager_api.users.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.UUID;
 
@@ -23,12 +24,14 @@ public class Task {
     @Column(nullable=true)
     private String description;
 
-    @NotBlank(message = "priority must not be empty")
+//    @NotBlank(message = "priority must not be empty")
+    @NotNull //must be used for enums
     @Column()
     @Enumerated(EnumType.STRING)
     private PRIORITY priority;
 
-    @NotBlank(message = "status must not be empty")
+//    @NotBlank(message = "status must not be empty")
+    @NotNull //must be used for enums
     @Column()
     @Enumerated(EnumType.STRING)
     private TASKSTATUS status;

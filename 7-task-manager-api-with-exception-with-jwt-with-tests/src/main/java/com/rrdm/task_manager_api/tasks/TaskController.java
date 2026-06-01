@@ -18,6 +18,7 @@ public class TaskController {
     }
 
     @GetMapping
+    @ResponseBody
     public ResponseEntity<List<TaskResponse>> findAll() {
         return ResponseEntity.ok(taskService.findAll());
     }

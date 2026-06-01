@@ -3,11 +3,19 @@ package com.rrdm.task_manager_api.tasks;
 import com.rrdm.task_manager_api.dto.task.TaskResponse;
 import com.rrdm.task_manager_api.exceptions.TaskNotFoundException;
 import com.rrdm.task_manager_api.exceptions.UserNotFoundException;
+import com.rrdm.task_manager_api.model.PRIORITY;
+import com.rrdm.task_manager_api.model.TASKSTATUS;
 import com.rrdm.task_manager_api.security.JwtAuthFilter;
 import com.rrdm.task_manager_api.security.JwtUtil;
+import com.rrdm.task_manager_api.security.SecurityConfig;
+import com.rrdm.task_manager_api.security.TestSecurityConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -24,12 +32,12 @@ import org.springframework.http.MediaType;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.mockito.Mockito.when;
 
 @WebMvcTest(TaskController.class)
+@AutoConfigureMockMvc(addFilters = false)
 public class TaskControllerTest {
     @Autowired
     MockMvc mockMvc;
@@ -45,8 +53,8 @@ public class TaskControllerTest {
 
     ObjectMapper objectMapper = new ObjectMapper(); //json converter
 
-    private UUID taskID = UUID.randomUUID();
-    private UUID userID = UUID.randomUUID();
+    private final UUID taskID = UUID.randomUUID();
+    private final UUID userID = UUID.randomUUID();
 
     private TaskResponse buildResponse(){
         TaskResponse t = new TaskResponse();
@@ -62,7 +70,11 @@ public class TaskControllerTest {
     @Test
     @WithMockUser
     public void GET_task_returns200_withTaskList() throws Exception{
-        when(taskService.findAll()).thenReturn(List.of(buildResponse()));
+        TaskResponse t = new TaskResponse();
+        t.setId(taskID);
+        t.setTitle("Test Task");
+
+        when(taskService.findAll()).thenReturn(List.of(t));
 
         mockMvc.perform(get("/tasks"))
                 .andExpect(status().isOk())
@@ -98,7 +110,7 @@ public class TaskControllerTest {
         mockMvc.perform(get("/tasks/{id}",taskID))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(taskID))
-                .andExpect(jsonPath("$.title").value("Test Task"));
+                .andExpect(jsonPath("$[0].title").value("Test Task"));
     }
 
     @Test
@@ -126,14 +138,21 @@ public class TaskControllerTest {
     public void POST_tasks_return201_withCreatedTask() throws Exception{
         Task input = new Task();
         input.setTitle("New Task");
+        input.setStatus(TASKSTATUS.PENDING);
+        input.setPriority(PRIORITY.MED);
 
         Task saved = new Task();
         saved.setId(taskID);
         saved.setTitle("New Task");
+        input.setStatus(TASKSTATUS.PENDING);
+        input.setPriority(PRIORITY.MED);
 
-        when(taskService.save(eq(taskID), any(Task.class))).thenReturn(saved);
+        String mapped = objectMapper.writeValueAsString(input);
 
-        mockMvc.perform(post("/tasks/{id}/add", taskID)
+        when(taskService.save(eq(userID), any(Task.class))).thenReturn(saved);
+        System.out.println(mapped);
+
+        mockMvc.perform(post("/tasks/{id}/add", userID)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(input))                        )
                 .andExpect(status().isCreated())
@@ -218,7 +237,7 @@ public class TaskControllerTest {
         when(taskService.search("New Title"))
                 .thenReturn(List.of(response));
 
-        mockMvc.perform(get("tasks/search"))
+        mockMvc.perform(get("/tasks/search"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].title").value("New Title"));
