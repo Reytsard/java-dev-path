@@ -40,6 +40,7 @@ public class TaskService {
     }
 
     public Task update(Task task) {
+        userRepository.findById(task.getOwner().getId()).orElseThrow(() -> new UserNotFoundException(task.getOwner().getId()));
         return taskRepository.findById(task.getId()).map(existing -> {
             if(task.getDescription() != null) existing.setDescription(task.getDescription());
             if(task.getPriority() != null) existing.setPriority(task.getPriority());

@@ -33,6 +33,8 @@ public class TaskController {
         return ResponseEntity.status(201).body(taskService.save(id, task));
     }
 
+
+
     @PutMapping("/update")
     public ResponseEntity<Task> update(@Valid @RequestBody Task task) {
         Task updated = taskService.update(task);
@@ -46,7 +48,7 @@ public class TaskController {
 
     @DeleteMapping("/remove/{id}")
     public ResponseEntity<Boolean> remove(@PathVariable("id") UUID id){
-        return ResponseEntity.status(201).body(taskService.delete(id));
+        return ResponseEntity.ok(taskService.delete(id));
     }
 
     @GetMapping("/id/{id}")
