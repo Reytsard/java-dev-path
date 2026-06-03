@@ -1,6 +1,7 @@
 package com.rrdm.task_manager_api.tasks;
 
 import com.rrdm.task_manager_api.auth.AuthService;
+import com.rrdm.task_manager_api.exceptions.UserNotFoundException;
 import com.rrdm.task_manager_api.model.PRIORITY;
 import com.rrdm.task_manager_api.model.TASKSTATUS;
 import com.rrdm.task_manager_api.security.JwtAuthFilter;
@@ -70,10 +71,66 @@ public class TaskControllerSecurityTest {
     }
 
     @Test
-    public void GET_task_returns401_whenNoToken() throws Exception {
+    public void GET_task_returns403_whenNoTokenAndAnonymous() throws Exception {
 
-//        when(taskService.findAll()).thenThrow()
+        //forbidden... isUnauthenticated is for roles that have no access ex. admin vs employee typeshii
         mockMvc.perform(get("/tasks"))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
+
+    @Test
+    public void GET_tasks_id_return403_whenNoTokenAndAnonymous() throws Exception{
+        mockMvc.perform(get("/tasks/{id}/",taskID))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void POST_tasks_return403_whenNoTokenAndAnonymous() throws Exception{
+
+        Task task = buildTask();
+
+        mockMvc.perform(post("/tasks/{id}/add",taskID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(task)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void PUT_task_return401_whenNoTokenAndAnonymous() throws Exception{
+        when(taskService.update(buildTask())).thenThrow(new RuntimeException());
+
+        mockMvc.perform(put("/tasks/update")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(buildTask())))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void GET_tasks_return403_whenNoTokenAndAnonymous() throws Exception{
+        mockMvc.perform(get("/tasks/search")
+                        .param("keyword","New Title"))
+                .andExpect(status().isForbidden());
+    }
+
+
+    @Test
+    public void DELETE_task_id_return403_whenNoTokenAndAnonymous() throws Exception{
+        mockMvc.perform(delete("/tasks/remove/{id}",taskID))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(username = "user")
+    public void POST_tasks_return404_whenUserNotFound() throws Exception{
+        when(taskService.save(eq(taskID),any(Task.class))).thenThrow(
+                new UserNotFoundException(userID)
+        );
+
+        mockMvc.perform(post("/tasks/{id}/add",taskID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(buildTask())))
+                .andExpect(status().isForbidden());
+    }
+
+
 }

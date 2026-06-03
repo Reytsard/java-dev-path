@@ -95,13 +95,6 @@ public class TaskControllerTest {
                 .andExpect(jsonPath("$.length()").value(0));
     }
 
-//    should be in another test class
-//    @Test
-//    public void GET_task_returns401_whenNoToken() throws Exception {
-//        mockMvc.perform(get("/tasks"))
-//                .andExpect(status().isUnauthorized());
-//    }
-
     /**
      * GET /tasks/{id}
      */
@@ -126,11 +119,6 @@ public class TaskControllerTest {
 
     }
 
-//    @Test
-//    public void GET_tasks_id_return401_whenNoToken() throws Exception{
-//        mockMvc.perform(get("/tasks/{id}/",taskID))
-//                .andExpect(status().isUnauthorized());
-//    }
 
     /**
      * /tasks/add/{id}
@@ -152,7 +140,6 @@ public class TaskControllerTest {
         String mapped = objectMapper.writeValueAsString(input);
 
         when(taskService.save(eq(userID), any(Task.class))).thenReturn(saved);
-        System.out.println(mapped);
 
         mockMvc.perform(post("/tasks/{id}/add", userID)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -162,29 +149,8 @@ public class TaskControllerTest {
 
     }
 
-//    @Test
-//    @WithMockUser
-//    public void POST_tasks_return404_whenUserNotFound() throws Exception{
-//        when(taskService.save(eq(taskID),any(Task.class))).thenThrow(
-//                new UserNotFoundException(userID)
-//        );
-//
-//        mockMvc.perform(post("/tasks/{id}/add",taskID)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(objectMapper.writeValueAsString(new Task())))
-//                .andExpect(status().isUnauthorized());
-//    }
 
-//    @Test
-//    public void POST_tasks_return401_whenNoToken() throws Exception{
-//
-//        Task task = buildTask();
-//
-//        mockMvc.perform(post("/tasks/{id}/add",taskID)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(objectMapper.writeValueAsString(task)))
-//                .andExpect(status().isUnauthorized());
-//    }
+
 
     /**
      * PUT /tasks/update
@@ -220,16 +186,7 @@ public class TaskControllerTest {
                 .andExpect(status().isNotFound());
     }
 
-    //!!!must be better if testing 401 are in a separate test, because this has no filters, disabled at the start, this class only check outputs...
-//    @Test
-//    public void PUT_task_return401_whenNoToken() throws Exception{
-//        when(taskService.update(buildTask())).thenThrow(new RuntimeException())
-//
-//        mockMvc.perform(put("/tasks/update")
-//                    .contentType(MediaType.APPLICATION_JSON)
-//                    .content(objectMapper.writeValueAsString(buildTask())))
-//                .andExpect(status().isUnauthorized());
-//    }
+
 
     /**
      * GET /tasks/search
@@ -264,12 +221,7 @@ public class TaskControllerTest {
 
     }
 
-//    @Test
-//    public void GET_tasks_return401_whenNoToken() throws Exception{
-//        mockMvc.perform(get("/tasks/search")
-//                        .param("keyword","New Title"))
-//                .andExpect(status().isUnauthorized());
-//    }
+
 
     /**
      * delete
@@ -293,9 +245,4 @@ public class TaskControllerTest {
                 .andExpect(status().isNotFound());
     }
 
-//    @Test
-//    public void DELETE_task_id_return401_whenNoToken() throws Exception{
-//        mockMvc.perform(delete("/tasks/remove/{id}",taskID))
-//                .andExpect(status().isUnauthorized());
-//    }
 }
